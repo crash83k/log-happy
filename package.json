@@ -1,10 +1,14 @@
 {
-  "name": "proper-logger",
+  "name": "log-happy",
   "version": "1.0.0",
-  "description": "Proper Logger is a Node.JS ES6 logging library for console logging.",
+  "description": "Log-Happy is a Node.JS ES6 logging library for console logging.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crash83k/log-happy.git"
   },
   "keywords": [
     "logging",
