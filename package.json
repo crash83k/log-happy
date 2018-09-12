@@ -1,7 +1,7 @@
 {
   "name": "log-happy",
-  "version": "1.0.0",
-  "description": "Log-Happy is a Node.JS ES6 logging library for console logging.",
+  "version": "1.0.1",
+  "description": "Log-Happy is a Node.JS logging library for console logging.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

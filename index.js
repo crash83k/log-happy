@@ -1,13 +1,14 @@
-import chalk from 'chalk';
-import log from 'fancy-log';
-import symbols from 'log-symbols';
-import util from 'util';
-import Event from 'events';
+const chalk = require('chalk');
+const log = require('fancy-log');
+const symbols = require('log-symbols');
+const util = require('util');
+const Event = require('events');
 
-class Events extends Event {}
+class Events extends Event {
+}
 
 // Consolidated location for all events regardless of namespace.
-export const allEvents = new Events();
+const allEvents = new Events();
 
 class Logger {
   constructor(namespace) {
@@ -84,14 +85,16 @@ class Logger {
  * @returns {String[]}
  */
 function stringArgs(args) {
-  for (let i = 0; i < args.length; i++) {
-    if (typeof args[i] === 'object' && !Array.isArray(args[i])) {
-      args[i] = util.inspect(args[i], {
-        depth: 6
+  for (let i = 0; i < args.length; i ++) {
+    if (typeof args[ i ] === 'object' && ! Array.isArray(args[ i ])) {
+      args[ i ] = util.inspect(args[ i ], {
+        depth : 6
       });
     }
   }
   return args;
 }
 
+exports.allEvents = allEvents;
+module.exports = Logger;
 global.Logger = Logger;
