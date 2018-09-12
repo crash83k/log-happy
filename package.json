@@ -1,0 +1,21 @@
+{
+  "name": "proper-logger",
+  "version": "1.0.0",
+  "description": "Proper Logger is a Node.JS ES6 logging library for console logging.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "logging",
+    "logger",
+    "console"
+  ],
+  "author": "Crash83k",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "fancy-log": "^1.3.2",
+    "log-symbols": "^2.2.0"
+  }
+}
