@@ -1,3 +1,4 @@
+'use strict';
 const chalk = require('chalk');
 const log = require('fancy-log');
 const symbols = require('log-symbols');
@@ -7,8 +8,8 @@ const Event = require('events');
 class Events extends Event {
 }
 
-// Consolidated location for all events regardless of namespace.
-const allEvents = new Events();
+// Consolidated location for all loggers neutral of namespace.
+const allLoggers = new Events();
 
 const logLevel = process.env.LOG_LEVEL || 1;
 
@@ -17,12 +18,13 @@ class Logger {
   constructor(namespace) {
     this.namespace = namespace;
     this.events = new Events();
+    // return this;
     return {
-      debug : () => this.debug,
-      info : () => this.info,
-      success : () => this.success,
-      warn : () => this.warn,
-      error : () => this.error,
+      debug : this.debug.bind(this),
+      info : this.info.bind(this),
+      success : this.success.bind(this),
+      warn : this.warn.bind(this),
+      error : this.error.bind(this),
       events : this.events,
     };
   }
@@ -34,8 +36,8 @@ class Logger {
         chalk.underline(this.namespace + ':'),
         chalk.cyan(...stringArgs(arguments))
       );
-      this.events.emit('debug', arguments);
-      allEvents.emit('debug', arguments);
+      this.events.emit('Debug', arguments);
+      allLoggers.emit('Debug', arguments);
     }
   }
 
@@ -46,8 +48,8 @@ class Logger {
         chalk.underline(this.namespace + ':'),
         chalk.blue(...stringArgs(arguments))
       );
-      this.events.emit('info', arguments);
-      allEvents.emit('info', arguments);
+      this.events.emit('Info', arguments);
+      allLoggers.emit('Info', arguments);
     }
   }
 
@@ -58,8 +60,8 @@ class Logger {
         chalk.underline(this.namespace + ':'),
         chalk.green(...stringArgs(arguments))
       );
-      this.events.emit('success', arguments);
-      allEvents.emit('success', arguments);
+      this.events.emit('Success', arguments);
+      allLoggers.emit('Success', arguments);
     }
   }
 
@@ -70,8 +72,8 @@ class Logger {
         chalk.underline(this.namespace + ':'),
         chalk.yellow(...stringArgs(arguments))
       );
-      this.events.emit('warn', arguments);
-      allEvents.emit('warn', arguments);
+      this.events.emit('Warn', arguments);
+      allLoggers.emit('Warn', arguments);
     }
   }
 
@@ -82,8 +84,13 @@ class Logger {
         chalk.underline(this.namespace + ':'),
         chalk.red(...stringArgs(arguments))
       );
-      this.events.emit('error', arguments);
-      allEvents.emit('error', arguments);
+
+      try {
+        this.events.emit('Error', arguments);
+        allLoggers.emit('Error', arguments);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 }
@@ -104,6 +111,6 @@ function stringArgs(args) {
   return args;
 }
 
-exports.allEvents = allEvents;
+exports.allEvents = allLoggers;
 module.exports = Logger;
 global.Logger = Logger;
