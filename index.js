@@ -13,20 +13,28 @@ const allEvents = new Events();
 const logLevel = process.env.LOG_LEVEL || 1;
 
 class Logger {
+
   constructor(namespace) {
-    this.namespace = () => `${namespace}`;
-    this.event = new Events();
-    return this;
+    this.namespace = namespace;
+    this.events = new Events();
+    return {
+      debug : () => this.debug,
+      info : () => this.info,
+      success : () => this.success,
+      warn : () => this.warn,
+      error : () => this.error,
+      events : this.events,
+    };
   }
 
   debug() {
     if (logLevel >= 5) {
       log(
         chalk.cyan('☼'),
-        chalk.underline(this.namespace() + ':'),
+        chalk.underline(this.namespace + ':'),
         chalk.cyan(...stringArgs(arguments))
       );
-      this.event.emit('debug', arguments);
+      this.events.emit('debug', arguments);
       allEvents.emit('debug', arguments);
     }
   }
@@ -35,10 +43,10 @@ class Logger {
     if (logLevel >= 4) {
       log(
         symbols.info,
-        chalk.underline(this.namespace() + ':'),
+        chalk.underline(this.namespace + ':'),
         chalk.blue(...stringArgs(arguments))
       );
-      this.event.emit('info', arguments);
+      this.events.emit('info', arguments);
       allEvents.emit('info', arguments);
     }
   }
@@ -47,10 +55,10 @@ class Logger {
     if (logLevel >= 3) {
       log(
         symbols.success,
-        chalk.underline(this.namespace() + ':'),
+        chalk.underline(this.namespace + ':'),
         chalk.green(...stringArgs(arguments))
       );
-      this.event.emit('success', arguments);
+      this.events.emit('success', arguments);
       allEvents.emit('success', arguments);
     }
   }
@@ -59,10 +67,10 @@ class Logger {
     if (logLevel >= 2) {
       log(
         symbols.warning,
-        chalk.underline(this.namespace() + ':'),
+        chalk.underline(this.namespace + ':'),
         chalk.yellow(...stringArgs(arguments))
       );
-      this.event.emit('warn', arguments);
+      this.events.emit('warn', arguments);
       allEvents.emit('warn', arguments);
     }
   }
@@ -71,10 +79,10 @@ class Logger {
     if (logLevel >= 1) {
       log.error(
         symbols.error,
-        chalk.underline(this.namespace() + ':'),
+        chalk.underline(this.namespace + ':'),
         chalk.red(...stringArgs(arguments))
       );
-      this.event.emit('error', arguments);
+      this.events.emit('error', arguments);
       allEvents.emit('error', arguments);
     }
   }
