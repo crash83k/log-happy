@@ -10,16 +10,17 @@ class Events extends Event {
 // Consolidated location for all events regardless of namespace.
 const allEvents = new Events();
 
+const logLevel = process.env.LOG_LEVEL || 1;
+
 class Logger {
   constructor(namespace) {
     this.namespace = () => `${namespace}`;
-    this.logLevel = process.env.LOG_LEVEL || 1;
     this.event = new Events();
     return this;
   }
 
   debug() {
-    if (this.logLevel >= 5) {
+    if (logLevel >= 5) {
       log(
         chalk.cyan('☼'),
         chalk.underline(this.namespace() + ':'),
@@ -31,7 +32,7 @@ class Logger {
   }
 
   info() {
-    if (this.logLevel >= 4) {
+    if (logLevel >= 4) {
       log(
         symbols.info,
         chalk.underline(this.namespace() + ':'),
@@ -43,7 +44,7 @@ class Logger {
   }
 
   success() {
-    if (this.logLevel >= 3) {
+    if (logLevel >= 3) {
       log(
         symbols.success,
         chalk.underline(this.namespace() + ':'),
@@ -55,7 +56,7 @@ class Logger {
   }
 
   warn() {
-    if (this.logLevel >= 2) {
+    if (logLevel >= 2) {
       log(
         symbols.warning,
         chalk.underline(this.namespace() + ':'),
@@ -67,7 +68,7 @@ class Logger {
   }
 
   error() {
-    if (this.logLevel >= 1) {
+    if (logLevel >= 1) {
       log.error(
         symbols.error,
         chalk.underline(this.namespace() + ':'),
