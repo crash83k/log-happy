@@ -45,8 +45,10 @@ deprecation alerts.
 - `disable` or `0` - Keeps logging completely quiet. No logging is performed.
 
 ##### Logging
-Log Happy usage is essentially identical (sans `.time()`/`.timeEnd()`). All of the logging methods accept an unlimited 
-number of arguments. `Array` and `Object` parameters are inspected to strings (up to 6 layers deep). Syntax:
+Log Happy usage is essentially identical to using `console`. However, it doesn't have certain utility features like `.time()`/`.timeEnd()`. 
+
+All of the logging methods accept an unlimited number of arguments. `Array` and `Object` parameters are inspected to 
+strings (up to 6 layers deep). Syntax:
 ```javascript
 loggerInstance( param1 [, param2 ] [, paramN ] );
 ```
