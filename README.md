@@ -101,11 +101,11 @@ Events from any namespace logger will also be emitted on the `allEvents` event l
 ```javascript
 const fs = require('fs');
 const allEvents = Logger.allevents;
-allEvents.events.on('Warn', () => {
+allEvents.on('Warn', () => {
   fs.writeFileSync('path/to/log.txt', JSON.stringify(arguments) + '\n', {flag: 'a'});
 });
 
-allEvents.events.on('Error', () => {
+allEvents.on('Error', () => {
   fs.writeFileSync('path/to/log.txt', JSON.stringify(arguments) + '\n', {flag: 'a'});
 });
 ```
