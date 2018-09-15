@@ -1,4 +1,4 @@
-const Logger = require('../index');
+require('../index');
 const chai = require('chai');
 const expect = chai.expect;
 
