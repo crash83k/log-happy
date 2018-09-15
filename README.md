@@ -78,6 +78,8 @@ log.error( 'This object has a couple keys:', {key1: 1, key2: 2} );
 > [18:29:48] ✖ Test Module: This object has a couple keys: { key1: 1, key2: 2 }
 ``` 
 
+![Image of console colors](https://imgur.com/AuZsDIQ)
+
 ##### Subscriptions
 A feature of the Log Happy is subscriptions. You can subscribe to specific log events for a individual namespaces, and/or
 you can subscribe to all of the namespaces at once. One use case for this would be to output the logging to a file, database, 
