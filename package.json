@@ -1,6 +1,6 @@
 {
   "name": "log-happy",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Log-Happy is a Node.JS logging library for console logging.",
   "main": "index.js",
   "scripts": {
