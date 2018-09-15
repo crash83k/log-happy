@@ -100,3 +100,5 @@ describe('Test that logging ignores overridden context', () => {
   });
 
 });
+
+//ToDo: Write tests to ensure that console logging is as expected.
