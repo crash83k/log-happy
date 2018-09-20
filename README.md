@@ -15,14 +15,34 @@ Log Happy is a basic logger with event subscriptions, namespaces, and log levels
 ```npm i log-happy```
 
 ## Usage
-Log happy automatically adds the `Logger` constructor to the global namespace.
 
 Requiring the library will be enough to get started:
 ```javascript
 require('log-happy');
 ```
 
-##### Initiating A Logger
+Log happy automatically adds the `Logger` constructor to the global namespace.
+
+#### Static Logger
+
+The global `Logger` instance can be used to do logging without a namespace. 
+
+**Caveats:**
+- There are no log level restrictions. All of the logger functions fire regardless of the
+log level set. 
+- The static log functions do not fire logging subscription events.
+
+Static functions are `debug`, `info`, `success`, `warn`, and `error`.
+
+```javascript
+// debug example
+Logger.debug( 'This is static logging.', {key1: 1, key2: 2} );
+> [18:29:48] ☼ This is static logging. { key1: 1, key2: 2 }
+```
+
+#### Namespace Logger
+
+##### Initiating A Namespace Logger
 You can create a logger by instantiating a new `Logger` constructor. 
 The syntax for the logger constructor is `Logger(namespace<String>[, logLevel:<Number|String>])`
 

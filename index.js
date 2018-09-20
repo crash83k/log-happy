@@ -26,6 +26,36 @@ class Logger {
     }
   };
 
+  static get colors() {
+    return {
+      debug : 'cyan',
+      info : 'blue',
+      success : 'green',
+      warn : 'yellow',
+      error : 'red',
+    }
+  }
+
+  static debug() {
+    log(...Logger._log('debug')(...arguments));
+  }
+
+  static info() {
+    log(...Logger._log('info')(...arguments));
+  }
+
+  static success() {
+    log(...Logger._log('success')(...arguments));
+  }
+
+  static warn() {
+    log(...Logger._log('warn')(...arguments));
+  }
+
+  static error() {
+    log.error(...Logger._log('error')(...arguments));
+  }
+
   /**
    *
    * @param {String} namespace (Required)
@@ -84,11 +114,7 @@ class Logger {
    */
   debug() {
     if (this.logLevel >= 5) {
-      log(
-        chalk.cyan('☼'),
-        chalk.underline(this.namespace + ':'),
-        chalk.cyan(...stringArgs(arguments))
-      );
+      log(...this._log('debug')(...arguments));
       this.events.emit('Debug', ...arguments);
       allLoggers.emit('Debug', ...arguments);
     }
@@ -99,11 +125,7 @@ class Logger {
    */
   info() {
     if (this.logLevel >= 4) {
-      log(
-        symbols.info,
-        chalk.underline(this.namespace + ':'),
-        chalk.blue(...stringArgs(arguments))
-      );
+      log(...this._log('info')(...arguments));
       this.events.emit('Info', ...arguments);
       allLoggers.emit('Info', ...arguments);
     }
@@ -114,11 +136,7 @@ class Logger {
    */
   success() {
     if (this.logLevel >= 3) {
-      log(
-        symbols.success,
-        chalk.underline(this.namespace + ':'),
-        chalk.green(...stringArgs(arguments))
-      );
+      log(...this._log('success')(...arguments));
       this.events.emit('Success', ...arguments);
       allLoggers.emit('Success', ...arguments);
     }
@@ -129,11 +147,7 @@ class Logger {
    */
   warn() {
     if (this.logLevel >= 2) {
-      log(
-        symbols.warning,
-        chalk.underline(this.namespace + ':'),
-        chalk.yellow(...stringArgs(arguments))
-      );
+      log(...this._log('warn')(...arguments));
       this.events.emit('Warn', ...arguments);
       allLoggers.emit('Warn', ...arguments);
     }
@@ -144,14 +158,51 @@ class Logger {
    */
   error() {
     if (this.logLevel >= 1) {
-      log.error(
-        symbols.error,
-        chalk.underline(this.namespace + ':'),
-        chalk.red(...stringArgs(arguments))
-      );
+      log.error(...this._log('error')(...arguments));
       this.events.emit('Error', ...arguments);
       allLoggers.emit('Error', ...arguments);
     }
+  }
+
+  /**
+   * @param {String} type
+   * @returns {Function} Bound function
+   * @private
+   */
+  _log(type) {
+    return (function () {
+      const argArr = [
+        chalk.underline(this.namespace + ':'),
+        chalk[ Logger.colors[ type ] ](...stringArgs(arguments))
+      ];
+
+      if (type === 'debug') {
+        argArr.unshift(chalk[ Logger.colors[ type ] ]('☼'));
+      } else {
+        argArr.unshift(symbols[ type === 'warn' ? 'warning' : type ]);
+      }
+
+      return argArr;
+    }).bind(this)
+  }
+
+  /**
+   * @param {String} type
+   * @returns {Function} Unbound function
+   * @private
+   */
+  static _log(type) {
+    return (function () {
+      const argArr = [ chalk[ Logger.colors[ type ] ](...stringArgs(arguments)) ];
+
+      if (type === 'debug') {
+        argArr.unshift(chalk[ Logger.colors[ type ] ]('☼'));
+      } else {
+        argArr.unshift(symbols[ type === 'warn' ? 'warning' : type ]);
+      }
+
+      return argArr;
+    })
   }
 }
 

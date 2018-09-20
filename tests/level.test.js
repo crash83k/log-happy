@@ -13,13 +13,14 @@ describe('Test debug levels being set.', () => {
   });
 
   it('Accepts string levels', () => {
-
-    [ [ 'debug', 5 ],
+    [
+      [ 'debug', 5 ],
       [ 'info', 4 ],
       [ 'success', 3 ],
       [ 'warn', 2 ],
       [ 'error', 1 ],
-      [ 'disable', 0 ] ].forEach(level => {
+      [ 'disable', 0 ]
+    ].forEach(level => {
       expect(log0.level(level[ 0 ])).to.equal(level[ 1 ]);
     });
 
@@ -99,6 +100,21 @@ describe('Test that logging ignores overridden context', () => {
     })
   });
 
+});
+
+describe('Test that static loggers work', () => {
+  [ 'debug',
+    'info',
+    'success',
+    'warn',
+    'error',
+  ].forEach(level => {
+    it(`Static ${level} should not throw error.`, (done) => {
+      // If context wasn't ignored, this would throw an error.
+      expect(Logger[ level ](`${level} static test.`)).to.equal(undefined);
+      done();
+    })
+  });
 });
 
 //ToDo: Write tests to ensure that console logging is as expected.
