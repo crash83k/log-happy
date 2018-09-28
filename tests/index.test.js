@@ -117,4 +117,90 @@ describe('Test that static loggers work', () => {
   });
 });
 
+describe('Benchmark tests', () => {
+  const log5 = new Logger('Test 5', 5);
+  after(() => {
+    log5.bench('Bench Test 1', true);
+  });
+
+  it('Namespace benchmarks start', done => {
+    expect(log5.bench('Bench Test 1')).to.equal(0);
+    expect(log5.bench('Bench Test 2')).to.equal(0);
+
+    let benchTime = 0;
+    setTimeout(() => {
+      benchTime = log5.bench('Bench Test 1');
+      expect(benchTime).to.be.above(500);
+      expect(benchTime).to.be.below(510);
+      done();
+    }, 500);
+  });
+
+  it('Continued benchmarking', done => {
+    let benchTime = 0;
+    setTimeout(() => {
+      benchTime = log5.bench('Bench Test 1');
+      expect(benchTime).to.be.above(100);
+      expect(benchTime).to.be.below(1020);
+      done();
+    }, 500);
+  });
+
+  it('Ends benchmarking', done => {
+    let benchTime = 0;
+    setTimeout(() => {
+      benchTime = log5.bench('Bench Test 1', true);
+      expect(benchTime).to.be.above(1500);
+      expect(benchTime).to.be.below(1530);
+      expect(log5.bench('Bench Test 1')).to.equal(0);
+      done()
+    }, 500);
+  });
+
+  it('Ensures other benchmarks run in parallel', done => {
+    let benchTime2 = log5.bench('Bench Test 2', true);
+    expect(benchTime2).to.be.above(1500);
+    expect(benchTime2).to.be.below(1530);
+    done();
+  })
+});
+
+describe('Test namespace benchmark subscriptions.', () => {
+  const log6 = new Logger('Test 6', 5);
+  const namespace = 'benchSubscribe';
+  let iteration = 0, waitTime = 200;
+  for (let eventType of [ 'start', 'tick', 'end' ]) {
+    it(`Gets the ${eventType} call`, done => {
+      setTimeout(() => log6.bench(namespace, eventType === 'end'), waitTime);
+      log6.events.on('Bench', (namespace, time, type) => {
+        expect(type).to.equal(eventType);
+        expect(time).to.be.at.least(waitTime * iteration);
+        expect(time).to.be.below(waitTime * iteration + 10);
+        log6.events.removeAllListeners('Bench');
+        iteration ++;
+        done();
+      });
+    });
+  }
+});
+
+describe('Test global benchmark subscriptions.', () => {
+  const log7 = new Logger('Test 7', 5);
+  const namespace = 'benchSubscribe';
+  let iteration = 0, waitTime = 200;
+  for (let eventType of [ 'start', 'tick', 'end' ]) {
+    it(`Gets the ${eventType} call`, done => {
+      setTimeout(() => log7.bench(namespace, eventType === 'end'), waitTime);
+      Logger.allEvents.on('Bench', (namespace, time, type) => {
+        expect(type).to.equal(eventType);
+        expect(time).to.be.at.least(waitTime * iteration);
+        expect(time).to.be.below(waitTime * iteration + 10);
+        Logger.allEvents.removeAllListeners('Bench');
+        iteration ++;
+        done();
+      });
+    });
+  }
+});
+
 //ToDo: Write tests to ensure that console logging is as expected.

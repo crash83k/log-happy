@@ -11,6 +11,8 @@ class Events extends Event {
 // Consolidated location for all loggers neutral of namespace.
 const allLoggers = new Events();
 
+const benchmarks = {};
+
 class Logger {
   /**
    * @returns {{debug: number, info: number, success: number, warn: number, error: number, disable: number}}
@@ -28,6 +30,7 @@ class Logger {
 
   static get colors() {
     return {
+      bench : 'magentaBright',
       debug : 'cyan',
       info : 'blue',
       success : 'green',
@@ -56,6 +59,17 @@ class Logger {
     log.error(...Logger._log('error')(...arguments));
   }
 
+  static bench(namespace, end = false) {
+    if (benchmarks.hasOwnProperty(namespace)) {
+      const diff = process.hrtime(benchmarks[ namespace ]);
+      if (end) delete benchmarks[ namespace ];
+      return ((diff[ 0 ] * 1e9) + diff[ 1 ]) / 1000000;
+    } else {
+      benchmarks[ namespace ] = process.hrtime();
+      return 0;
+    }
+  }
+
   /**
    *
    * @param {String} namespace (Required)
@@ -72,8 +86,10 @@ class Logger {
     this.namespace = namespace;
     this.events = new Events();
     this.logLevel = this.updateDebugLevel(logLevel);
+    this.benchmarks = {};
 
     return {
+      bench : this.bench.bind(this),
       debug : this.debug.bind(this),
       info : this.info.bind(this),
       success : this.success.bind(this),
@@ -110,13 +126,33 @@ class Logger {
   }
 
   /**
+   * Method for benchmarking.
+   * @param {String} namespace
+   * @param {Boolean} [end]
+   * @returns {Number}
+   */
+  bench(namespace, end = false) {
+    let time = Logger.bench(this.namespace + '__' + namespace, end);
+    if (! this.benchmarks.hasOwnProperty(namespace)) {
+      this.emit('Bench', namespace, time, 'start');
+      this.benchmarks[ namespace ] = true;
+    } else if (end) {
+      this.emit('Bench', namespace, time, 'end');
+      delete this.benchmarks[ namespace ];
+    } else {
+      this.emit('Bench', namespace, time, 'tick');
+    }
+    log(...this._log('bench')(`Benchmark - ${namespace}: ${time}ms`));
+    return time;
+  }
+
+  /**
    * @param {Number|String|Object|Array} [arguments]
    */
   debug() {
     if (this.logLevel >= 5) {
       log(...this._log('debug')(...arguments));
-      this.events.emit('Debug', ...arguments);
-      allLoggers.emit('Debug', ...arguments);
+      this.emit('Debug', ...arguments);
     }
   }
 
@@ -126,8 +162,7 @@ class Logger {
   info() {
     if (this.logLevel >= 4) {
       log(...this._log('info')(...arguments));
-      this.events.emit('Info', ...arguments);
-      allLoggers.emit('Info', ...arguments);
+      this.emit('Info', ...arguments);
     }
   }
 
@@ -137,8 +172,7 @@ class Logger {
   success() {
     if (this.logLevel >= 3) {
       log(...this._log('success')(...arguments));
-      this.events.emit('Success', ...arguments);
-      allLoggers.emit('Success', ...arguments);
+      this.emit('Success', ...arguments);
     }
   }
 
@@ -148,8 +182,7 @@ class Logger {
   warn() {
     if (this.logLevel >= 2) {
       log(...this._log('warn')(...arguments));
-      this.events.emit('Warn', ...arguments);
-      allLoggers.emit('Warn', ...arguments);
+      this.emit('Warn', ...arguments);
     }
   }
 
@@ -159,9 +192,13 @@ class Logger {
   error() {
     if (this.logLevel >= 1) {
       log.error(...this._log('error')(...arguments));
-      this.events.emit('Error', ...arguments);
-      allLoggers.emit('Error', ...arguments);
+      this.emit('Error', ...arguments);
     }
+  }
+
+  emit() {
+    this.events.emit(...arguments);
+    allLoggers.emit(...arguments);
   }
 
   /**
@@ -176,10 +213,16 @@ class Logger {
         chalk[ Logger.colors[ type ] ](...stringArgs(arguments))
       ];
 
-      if (type === 'debug') {
-        argArr.unshift(chalk[ Logger.colors[ type ] ]('☼'));
-      } else {
-        argArr.unshift(symbols[ type === 'warn' ? 'warning' : type ]);
+      switch (type) {
+        case 'bench':
+          argArr.unshift(chalk[ Logger.colors[ type ] ]('◷'));
+          break;
+        case 'debug':
+          argArr.unshift(chalk[ Logger.colors[ type ] ]('☼'));
+          break;
+        default:
+          argArr.unshift(symbols[ type === 'warn' ? 'warning' : type ]);
+          break;
       }
 
       return argArr;
@@ -195,10 +238,16 @@ class Logger {
     return (function () {
       const argArr = [ chalk[ Logger.colors[ type ] ](...stringArgs(arguments)) ];
 
-      if (type === 'debug') {
-        argArr.unshift(chalk[ Logger.colors[ type ] ]('☼'));
-      } else {
-        argArr.unshift(symbols[ type === 'warn' ? 'warning' : type ]);
+      switch (type) {
+        case 'bench':
+          argArr.unshift(chalk[ Logger.colors[ type ] ]('◷'));
+          break;
+        case 'debug':
+          argArr.unshift(chalk[ Logger.colors[ type ] ]('☼'));
+          break;
+        default:
+          argArr.unshift(symbols[ type === 'warn' ? 'warning' : type ]);
+          break;
       }
 
       return argArr;

@@ -65,7 +65,10 @@ deprecation alerts.
 - `disable` or `0` - Keeps logging completely quiet. No logging is performed.
 
 ##### Logging
-Log Happy usage is essentially identical to using `console`. However, it doesn't have certain utility features like `.time()`/`.timeEnd()`. 
+Log Happy usage is essentially identical to using `console`. 
+However, it doesn't have certain utility features like `.time()`/`.timeEnd()`.
+
+(See [Benchmarks](#Benchmarks) for benchmarking methods.) 
 
 All of the logging methods accept an unlimited number of arguments. `Array` and `Object` parameters are inspected to 
 strings (up to 6 layers deep). Syntax:
@@ -100,6 +103,63 @@ log.error( 'This object has a couple keys:', {key1: 1, key2: 2} );
 
 ![console colors](https://i.imgur.com/AuZsDIQ.png)
 
+##### Benchmarks
+Benchmarking is made possible through the `.bench()` method available in both Logger instances and the
+global Logger class (static method). 
+
+`.bench()` has 2 parameters:
+- `namespace` {String} - The identifier for your benchmark.
+- `end` {Boolean} \[optional] - Tells the benchmark to end.
+
+Benchmarks track the original time of creating the benchmark/namespace combination up to the point 
+that the benchmark method is called with `end` equaling `true`. This means that you can continue to
+call the benchmark method on the same namespace to get the incremental benchmark time.
+
+**Note:** The `.bench()` method ignores debug levels. 
+
+Calling the `.bench()` method on the Logger instance or Logger class will return the milliseconds passed
+in decimal form. For example, if 100025 microseconds have passed, the method will return 1000.25.
+
+If the benchmark method is called from a Logger instance, the results are automatically output to the console. 
+
+```javascript
+const log = new Logger('Application Bootstrap', 'debug');
+
+const varStart = log.bench('Start-up');
+> [18:04:37] ◷ Application Bootstrap: Benchmark - Start-up: 0ms
+// varStart -> 0
+
+// ... do some start up stuff...
+
+const varTick = log.bench('Start-up');
+> [18:04:38] ◷ Application Bootstrap: Benchmark - Start-up: 1006.081488ms
+// varTick -> 1006.081488
+
+// ... do more start up stuff...
+
+const varEnd = log.bench('Start-up', true); // Use 'true' to end the benchmark
+> [18:04:38] ◷ Application Bootstrap: Benchmark - Start-up: 1508.363578ms
+// varEnd -> 1508.363578
+```
+
+When using the Logger static `.bench()` method, the debugger does not automatically output to console.
+
+```javascript
+const varStart = Logger.bench('Start-up');
+// varStart -> 0
+
+// ... do some start up stuff...
+
+const varTick = Logger.bench('Start-up');
+// varTick -> 1006.081488
+
+// ... do more start up stuff...
+
+const varEnd = Logger.bench('Start-up', true); // Use 'true' to end the benchmark
+// varEnd -> 1508.363578
+```
+
+
 ##### Subscriptions
 A feature of the Log Happy is subscriptions. You can subscribe to specific log events for a individual namespaces, and/or
 you can subscribe to all of the namespaces at once. One use case for this would be to output the logging to a file, database, 
@@ -124,7 +184,7 @@ This is a standard `EventListener` class.
 Events from any namespace logger will also be emitted on the `allEvents` event listener.
 ```javascript
 const fs = require('fs');
-const allEvents = Logger.allevents;
+const allEvents = Logger.allEvents;
 allEvents.on('Warn', () => {
   fs.writeFileSync('path/to/log.txt', JSON.stringify(arguments) + '\n', {flag: 'a'});
 });
@@ -135,6 +195,27 @@ allEvents.on('Error', () => {
 ```
 
 **Note:** Event types are upper-cased. (i.e. `warn` events are `Warn`, `info` events are `Info`)
+
+When the `.bench()` method is called on a Logger instance, the `Bench` event is emitted on both the
+`Logger.allEvents` and the instance `.events` event listeners.
+
+However, there is a specific signature returned to the event listeners:
+```javascript
+const log = new Logger('Benchmark Events', 'debug');
+
+log.events.on('Bench', (namespace, time, type) => {
+  log.debug(`${namespace}, ${time}, ${type}`);
+});
+
+log.bench('Bench Events');
+> [18:04:37] ☼ Benchmark Events: Bench Events, 0, start  
+
+log.bench('Bench Events');
+> [18:04:37] ☼ Benchmark Events: Bench Events, 1.1002, tick
+
+log.bench('Bench Events', true);
+> [18:04:37] ☼ Benchmark Events: Bench Events, 2.421, end  
+```
 
 ##### Tests
 
